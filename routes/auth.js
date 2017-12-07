@@ -23,4 +23,4 @@ var auth = {
     })
 };
 
-module.export = auth;
+module.exports = auth;
