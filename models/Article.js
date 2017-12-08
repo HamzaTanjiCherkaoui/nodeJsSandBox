@@ -23,4 +23,6 @@ var ArticleSchema = mongoose.Schema({
 
 }, {timestamps: true});
 
+mongoose.plugin(uniqueValidator,{message : 'is Already Taken'});
+
 
