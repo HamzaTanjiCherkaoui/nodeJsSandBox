@@ -25,4 +25,9 @@ var ArticleSchema = mongoose.Schema({
 
 mongoose.plugin(uniqueValidator,{message : 'is Already Taken'});
 
+ArticleSchema.pre('validate',function(next){
+this.slugify();
+next();
+});
+
 
