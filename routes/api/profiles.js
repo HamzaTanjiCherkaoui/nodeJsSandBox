@@ -15,14 +15,13 @@ router.param('username',function(req,res,next,username){
 router.get('/:username' ,auth.optional,function(req,res,next){
 
     if(req.payload) {
-        
         User.findOne(req.payload.id).then(function(user){
             if(!user) return res.json({profile : req.profile.toProfileJSONFor(false)});
             return res.json({profile : req.profile.toProfileJSONFor(user)});
         }).catch(next);
         
     } else {
-        return res.json({profile : req.profile.toProfileJSONFor(flase)});
+        return res.json({profile : req.profile.toProfileJSONFor(false)});
     }
 
 })
