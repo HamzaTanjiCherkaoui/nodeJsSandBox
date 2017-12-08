@@ -21,13 +21,25 @@ var ArticleSchema = mongoose.Schema({
         ref: 'User'
     },
 
-}, {timestamps: true});
+}, { timestamps: true });
 
-mongoose.plugin(uniqueValidator,{message : 'is Already Taken'});
+mongoose.plugin(uniqueValidator, { message: 'is Already Taken' });
 
-ArticleSchema.pre('validate',function(next){
-this.slugify();
-next();
+ArticleSchema.pre('validate', function (next) {
+    this.slugify();
+    next();
 });
 
-
+ArticleSchema.methods.toJSONFor = function (user) { 
+    return {
+        slug: this.slug,
+        title: this.title,
+        description: this.description,
+        body: this.body,
+        tagList: this.tagList,
+        favoritesCount: this.favoritesCount,
+        createdAt: this.createdAt,
+        updatedAt: this.updatedAt,
+        author: this.author.toProfileJSONFor(user),  
+    };
+}
