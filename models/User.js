@@ -24,7 +24,8 @@ var UserSchema = new mongoose.Schema({
     bio: String,
     image: String,
     hash: String,
-    salt: String
+    salt: String,
+    favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Article' }]
 }, { timestamps: true })
 
 UserSchema.plugin(uniqueValidator, { message: 'is already taken.' });
@@ -68,6 +69,21 @@ UserSchema.methods.toProfileJSONFor = function (user) {
         image: this.image || 'https://static.productionready.io/images/smiley-cyrus.jpg',
         following: false
     };
+}
+
+UserSchema.methods.favorite = function (id) {
+    if (this.favorites.indexOf(id) == -1)
+        this.favorites.push(id);
+        return this.save();
+}
+
+UserSchema.methods.unFavorite = function(id) {
+    this.favorites.remove(id);
+    return this.save();
+}
+
+UserSchema.methods.isFavorited = function(id) {
+    return this.favorites.some(favoritedId => favoritedId.toString() == id);
 }
 
 mongoose.model('User', UserSchema);
