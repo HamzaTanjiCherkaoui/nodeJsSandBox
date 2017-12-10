@@ -60,6 +60,18 @@ router.delete('/:article/favorite', auth.required, function (req, res, next) {
     }).catch(next);
 })
 router.get('/:article/comments', auth.optional, function (req, res, next) {
-
+    Promise.resolve(req.payload ? User.findById(req.payload.id) : null).then(function (user) {
+        return req.article.populate({
+            path: 'comments',
+            populate: { path: 'author' },
+            options:{
+            sort : {createdAt:  'desc'}
+        }
+        }).execPopulate().then(function(article){
+            return res.json({
+                comments : article.comments.map(comment => comment.toJSONFor(user))
+            });
+        })
+    }).catch(next);
 })
 module.exports = router;
