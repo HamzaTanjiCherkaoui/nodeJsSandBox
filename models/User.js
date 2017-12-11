@@ -96,7 +96,7 @@ UserSchema.methods.follow = function(id){
     
     UserSchema.methods.unFollow = function(id){
         this.following.remove(id);
-        this.save();
+        return this.save();
     }
 
 UserSchema.methods.isFollowing = function(id){
