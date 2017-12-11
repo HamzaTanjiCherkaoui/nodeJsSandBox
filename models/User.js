@@ -91,6 +91,7 @@ UserSchema.methods.isFavorited = function(id) {
 UserSchema.methods.follow = function(id){
     if(this.following.indexOf(id)==-1)
     this.following.push(id);
+    return this.save();
     }
     
     UserSchema.methods.unFollow = function(id){
@@ -99,6 +100,6 @@ UserSchema.methods.follow = function(id){
 
 UserSchema.methods.isFollowing = function(id){
     return this.following.some(followedId => followedId.toString() == id);
-    
+
 }
 mongoose.model('User', UserSchema);
