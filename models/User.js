@@ -25,7 +25,8 @@ var UserSchema = new mongoose.Schema({
     image: String,
     hash: String,
     salt: String,
-    favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Article' }]
+    favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Article' }],
+    following :  [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, { timestamps: true })
 
 UserSchema.plugin(uniqueValidator, { message: 'is already taken.' });
@@ -86,4 +87,18 @@ UserSchema.methods.isFavorited = function(id) {
     return this.favorites.some(favoritedId => favoritedId.toString() == id);
 }
 
+
+UserSchema.methods.follow = function(id){
+    if(this.following.indexOf(id)==-1)
+    this.following.push(id);
+    }
+    
+    UserSchema.methods.unFollow = function(id){
+        this.following.remove(id);
+    }
+
+UserSchema.methods.isFollowing = function(id){
+    return this.following.some(followedId => followedId.toString() == id);
+    
+}
 mongoose.model('User', UserSchema);
