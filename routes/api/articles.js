@@ -33,7 +33,7 @@ router.get('/', auth.optional, function (req, res, next) {
 
     Promise.all([
         req.query.author ? User.findOne({ username: req.query.athor }) : null,
-        req.query.favorited ? User.findOne({ username: req.body.favorited }) : null
+        req.query.favorited ? User.findOne({ username: req.query.favorited }) : null
     ]).then(function (results) {
         var author = results[0];
         var favoriter = results[1];
