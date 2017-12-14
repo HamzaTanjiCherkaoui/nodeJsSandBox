@@ -21,7 +21,7 @@ router.param('comment', function (req, res, next, id) {
 })
 
 router.get('/', auth.optional, function (req, res, next) {
-    
+
     var query = {};
     var limit = 20;
     var offset = 0;
@@ -58,18 +58,27 @@ router.get('/', auth.optional, function (req, res, next) {
             var articles = results[0];
             var articlesCount = results[1];
             var user = results[2];
-            
+
             return res.json({
-                articles : articles.map(function(article){
-                    
+                articles: articles.map(function (article) {
+
                     return article.toJSONFor(user);
                 }),
-                articlesCount : articlesCount
+                articlesCount: articlesCount
             });
-            
+
         }).catch(next);
     }).catch(next);
 
+})
+router.get('/feed', auth.required, function (req, res, next) {
+    User.findById(req.payload.id).then(function (user) {
+        if(!user) res.sendStatus(403);
+    return Article.find({author : {'$in' : user.following }}).then(function(articles){
+        if(!articles) return res.json({articles :[]});
+        return res.json({articles : articles.map(article => article.toJSONFor(user))});
+    })
+    })
 })
 router.get('/:article', auth.optional, function (req, res, next) {
     Promise.all([
