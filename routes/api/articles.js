@@ -20,6 +20,7 @@ router.param('comment', function (req, res, next, id) {
     }).catch(next);
 })
 
+//GET Articles
 router.get('/', auth.optional, function (req, res, next) {
 
     var query = {};
@@ -29,7 +30,6 @@ router.get('/', auth.optional, function (req, res, next) {
     if (typeof req.body.limit !== 'undefined') limit = req.body.limit;
     if (typeof req.body.offset !== 'undefined') offset = req.body.offset;
     if (typeof req.body.tag !== 'undefined') query.tagList = { "$in": [req.body.tag] };
-
 
     Promise.all([
         req.query.author ? User.findOne({ username: req.query.athor }) : null,
@@ -69,16 +69,14 @@ router.get('/', auth.optional, function (req, res, next) {
 
         }).catch(next);
     }).catch(next);
-
-
 })
+//GET feed of the user 
 router.get('/feed', auth.required, function (req, res, next) {
     var limit = 20;
     var offset = 0;
 
     if (typeof req.body.limit !== 'undefined') limit = req.body.limit;
     if (typeof req.body.offset !== 'undefined') offset = req.body.offset;
-
 
     User.findById(req.payload.id).then(function (user) {
         if (!user) res.sendStatus(403);
@@ -93,6 +91,7 @@ router.get('/feed', auth.required, function (req, res, next) {
         })
     })
 })
+//GET a single Article
 router.get('/:article', auth.optional, function (req, res, next) {
     Promise.all([
         req.payload ? User.findById(req.payload.id) : null,
@@ -102,21 +101,32 @@ router.get('/:article', auth.optional, function (req, res, next) {
         return res.json({ article: req.article.toJSONFor(user) });
     }).catch(next);
 })
-
+// POST create an article
 router.post('/', auth.required, function (req, res, next) {
     User.findById(req.payload.id).then(function (user) {
         if (!user) return res.sendStatus(401);
         var article = new Article(req.body.article);
         article.author = user;
         return article.save().then(function () {
-
             return res.json({ article: article.toJSONFor(user) });
         }).catch(next);
     })
 })
+// Delete an article
+router.delete('/:article', auth.required, function (req, res, next) {
+    User.findById(req.payload.id).then(function (user) {
+        if (!user) res.sendStatus(401);
+        if (req.article.author._id.toString() === req.payload.id.toString()) {
+            req.article.remove().exec().then(res.sendStatus(204));
+        }
+        else {
+            res.sendStatus(403);
+        }
+    })
+})
+// Update an article
 
-
-
+// favorite an article
 router.post('/:article/favorite', auth.required, function (req, res, next) {
     var articleId = req.article._id;
     User.findById(req.payload.id).then(function (user) {
@@ -125,10 +135,10 @@ router.post('/:article/favorite', auth.required, function (req, res, next) {
             return req.article.updateFavoritesCount().then(function (article) {
                 return res.json({ article: article.toJSONFor(user) });
             }).catch(next);
-
         })
     }).catch(next);
 })
+// unfavorite an article
 router.delete('/:article/favorite', auth.required, function (req, res, next) {
     var articleId = req.article._id;
     User.findById(req.payload.id).then(function (user) {
@@ -137,11 +147,10 @@ router.delete('/:article/favorite', auth.required, function (req, res, next) {
             return req.article.updateFavoritesCount().then(function (article) {
                 return res.json({ article: article.toJSONFor(user) });
             }).catch(next);
-
         })
     }).catch(next);
 })
-
+// get articles comments
 router.get('/:article/comments', auth.optional, function (req, res, next) {
     Promise.resolve(req.payload ? User.findById(req.payload.id) : null).then(function (user) {
         return req.article.populate({
@@ -157,6 +166,7 @@ router.get('/:article/comments', auth.optional, function (req, res, next) {
         })
     }).catch(next);
 })
+// add a comment to an article
 router.post('/:article/comments', auth.required, function (req, res, next) {
     User.findById(req.payload.id).then(function (user) {
         if (!user) { return res.sendStatus(401); }
@@ -167,14 +177,13 @@ router.post('/:article/comments', auth.required, function (req, res, next) {
 
         return comment.save().then(function () {
             req.article.comments.push(comment);
-
             return req.article.save().then(function (article) {
                 res.json({ comment: comment.toJSONFor(user) });
             });
         });
     }).catch(next);
 });
-
+//delete a comment from an article
 router.delete('/:article/comments/:comment', auth.required, function (req, res, next) {
     if (req.comment.author.toString() == req.payload.id) {
         req.article.comments.remove(req.comment._id);
