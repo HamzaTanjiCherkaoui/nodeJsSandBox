@@ -70,14 +70,27 @@ router.get('/', auth.optional, function (req, res, next) {
         }).catch(next);
     }).catch(next);
 
+
 })
 router.get('/feed', auth.required, function (req, res, next) {
+    var limit = 20;
+    var offset = 0;
+
+    if (typeof req.body.limit !== 'undefined') limit = req.body.limit;
+    if (typeof req.body.offset !== 'undefined') offset = req.body.offset;
+
+
     User.findById(req.payload.id).then(function (user) {
-        if(!user) res.sendStatus(403);
-    return Article.find({author : {'$in' : user.following }}).then(function(articles){
-        if(!articles) return res.json({articles :[]});
-        return res.json({articles : articles.map(article => article.toJSONFor(user))});
-    })
+        if (!user) res.sendStatus(403);
+        return Article.find({ author: { '$in': user.following } })
+            .limit(Number(limit))
+            .skip(Number(offset))
+            .sort({ createdAt: 'desc' })
+            .populate('author')
+        then(function (articles) {
+            if (!articles) return res.json({ articles: [] });
+            return res.json({ articles: articles.map(article => article.toJSONFor(user)) });
+        })
     })
 })
 router.get('/:article', auth.optional, function (req, res, next) {
