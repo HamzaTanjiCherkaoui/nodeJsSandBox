@@ -11,7 +11,7 @@ var UserSchema = new mongoose.Schema({
         unique: true,
         required: [true, "can't be blank"],
         match: [/^[a-zA-Z0-9]+$/, 'is invalid'],
-        index: true
+        index: true,
     },
     email: {
         type: String,
@@ -21,6 +21,7 @@ var UserSchema = new mongoose.Schema({
         match: [/\S+@\S+\.\S+/, 'is invalid'],
         index: true
     },
+    isVerified : { type: Boolean , default : false},
     bio: String,
     image: String,
     hash: String,
