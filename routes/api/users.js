@@ -49,7 +49,7 @@ router.post('/users', function (req, res, next) {
     user.setPassword(req.body.user.password);
 
     user.save().then(function (user) {
-        //generate Token 
+
         var token = new Token();
         token._userId = user._id;
         token.setToken(user);
@@ -64,28 +64,30 @@ router.post('/users', function (req, res, next) {
             from: 'test@example.com',
             subject: 'Verify your Account ',
             text: 'click the link bellow to verify your account',
-            html: '<a href="localhost:3000/api/user/confirm'+token+'">',
+            html: '<a href="localhost:3000/api/user/confirm' + token + '">',
         };
         sgMail.send(msg);
         res.sendStatus(204);
     }).catch(next);
 });
+
 router.get('/user/confirm', function (req, res, next) {
     if (typeof req.query.token === 'undefined') res.sendStatus(403);
     var token = req.query.token;
     Token.findOne({ token: token }).then(function (token) {
-         User.findById(token._userId).then(function(userToValidate){
-            userToValidate.isVerified = true;
-            userToValidate.save().then(function (user) {
-                console.log("user verified");
+        User.findById(token._userId).then(function (user) {
+            if (!user)
+                return res.sendStatus(401)
+            user.isVerified = true;
+            user.save().then(function (user) {
                 res.sendStatus(204);
-            })
-         });
-        
+            }).catch(next)
+        });
+
     }).catch(next);
 })
+
 router.post('/users/login', function (req, res, next) {
-    //find if the user exist 
     User.count({ email: req.body.user.email, isVerified: true }).then(function (count) {
         if (count == 0) res.send("the account is not verified");
     })
@@ -106,6 +108,5 @@ router.post('/users/login', function (req, res, next) {
         }
     })(req, res, next);
 });
-
 
 module.exports = router;
