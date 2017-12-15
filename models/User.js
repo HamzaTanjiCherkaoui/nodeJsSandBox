@@ -15,7 +15,7 @@ var UserSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        lowercase: true,
+        lowercase: true, 
         unique: true,
         required: [true, "can't be blank"],
         match: [/\S+@\S+\.\S+/, 'is invalid'],

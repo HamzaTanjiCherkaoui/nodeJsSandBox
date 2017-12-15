@@ -8,9 +8,10 @@ var TokenSchema = mongoose.Schema({
     createdAt: { type: Date, required: true, default: Date.now, expires: 86400 }
 });
 
-UserSchema.methods.setToken = function (user) {
+TokenSchema.methods.setToken = function (user) {
     var salt = crypto.randomBytes(16).toString('hex');
-    this.token = crypto.pbkdf2Sync({_userId : user._id}, this.salt, 10000, 512, 'sha512').toString('hex');
+    //To CHange 
+    this.token = crypto.randomBytes(16).toString('hex');
 
 }
 
