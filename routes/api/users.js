@@ -58,6 +58,7 @@ router.post('/users', function (req, res, next) {
         })
 
         sendTokenToUser(token);
+        res.sendStatus(204);
     }).catch(next);
 });
 
@@ -72,7 +73,7 @@ var sendTokenToUser = function (token) {
         html: `<a href="localhost:3000/api/user/confirm?token=${token}">`,
     };
     sgMail.send(msg);
-    res.sendStatus(204);
+    
 }
 router.get('/user/confirm', function (req, res, next) {
     if (typeof req.query.token === 'undefined') res.sendStatus(403);
@@ -101,6 +102,7 @@ router.post('/user/resend', function (req, res, next) {
         })
 
         sendTokenToUser(token);
+        res.sendStatus(204);
     })
 })
 router.post('/users/login', function (req, res, next) {
