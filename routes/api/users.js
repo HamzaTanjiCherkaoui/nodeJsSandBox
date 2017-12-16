@@ -64,7 +64,7 @@ router.post('/users', function (req, res, next) {
 
 var sendTokenToUser = function (token) {
     const sgMail = require('@sendgrid/mail');
-    sgMail.setApiKey("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");
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
     const msg = {
         to: 'hamzatanjicherkaoui@gmail.com',
         from: 'test@example.com',
