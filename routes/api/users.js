@@ -63,33 +63,40 @@ router.post('/users', function (req, res, next) {
 });
 
 var sendTokenToUser = function (token) {
-    const sgMail = require('@sendgrid/mail');
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-    const msg = {
-        to: 'hamzatanjicherkaoui@gmail.com',
-        from: 'test@example.com',
-        subject: `Verify your Account `,
-        text: `click the link bellow to verify your account`,
-        html: `<a href="localhost:3000/api/user/confirm?token=${token}">`,
-    };
-    sgMail.send(msg);
-    
+    // const sgMail = require('@sendgrid/mail');
+    // sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    // const msg = {
+    //     to: 'hamzatanjicherkaoui@gmail.com',
+    //     from: 'test@example.com',
+    //     subject: `Verify your Account `,
+    //     text: `click the link bellow to verify your account`,
+    //     html: `<a href="localhost:3000/api/user/confirm?token=${token}">`,
+    // };
+    // sgMail.send(msg);
+
 }
 router.get('/user/confirm', function (req, res, next) {
     if (typeof req.query.token === 'undefined') res.sendStatus(403);
     var token = req.query.token;
     Token.findOne({ token: token }).then(function (token) {
+        console.log(token);
         User.findById(token._userId).then(function (user) {
             if (!user)
                 return res.sendStatus(401)
             user.isVerified = true;
-            token.remove().exec();
-            user.save().then(function (user) {
-                res.sendStatus(204);
-            }).catch(next)
-        });
+            // token.remove().exec();
 
-    }).catch(next);
+            user.save().then(function (user) {
+                Token.findByIdAndRemove(token.id, (err, todo) => {
+                    res.sendStatus(204);
+                })
+
+            
+
+        }).catch(next)
+    });
+
+}).catch(next);
 })
 router.post('/user/resend', function (req, res, next) {
     if (typeof req.body.email === 'undefined') return res.status(422).json({ errors: { email: "can't be blank" } });
