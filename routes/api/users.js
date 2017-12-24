@@ -684,10 +684,7 @@ router.post('/user/resend', function (req, res, next) {
     })
 })
 router.post('/users/login', function (req, res, next) {
-    User.count({ email: req.body.user.email, isVerified: true }).then(function (count) {
-        if (count == 0) res.send("the account is not verified");
-    })
-
+    
     if (!req.body.user.email)
         return res.status(422).json({ erros: { email: "cant't be blank" } })
     if (!req.body.user.password)
@@ -697,6 +694,8 @@ router.post('/users/login', function (req, res, next) {
         if (err)
             return next(err)
         if (user) {
+            if(!user.isVerified)
+            return res.status(422).json({errors : { account : "is not verified"}})
             user.token = user.generateJWT();
             return res.json({ user: user.toAuthJSON() });
         } else {
