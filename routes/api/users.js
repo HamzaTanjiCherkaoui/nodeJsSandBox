@@ -661,7 +661,8 @@ router.get('/user/confirm', function (req, res, next) {
 
             user.save().then(function (user) {
                 Token.findByIdAndRemove(token.id, (err, todo) => {
-                    res.status(204).send({message : "verified succesfully"});
+                    res.redirect('http://localhost:4200/home');
+                    // res.status(204).send({message : "verified succesfully"});
                                 })
 
         }).catch(next)
